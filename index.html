@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facebook Mini App</title>
+  
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f5f7;
+      color: #1c1e21;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    /* Access Denied Card */
+    .denied-card {
+      display: none;
+      background: #ffffff;
+      padding: 40px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .denied-card .icon {
+      font-size: 20px;
+      color: #e41e3f;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .denied-card p {
+      font-size: 14px;
+      color: #65676b;
+      margin-bottom: 8px;
+    }
+
+    .denied-card .user-id {
+      font-size: 13px;
+      color: #8a8d91;
+    }
+
+    /* Authorized Content Card */
+    .authorized-card {
+      display: none;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .authorized-card h1 {
+      color: #1877f2;
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Screen shown to unauthorized users -->
+    <div id="accessDenied" class="denied-card">
+      <div class="icon">⛔ Access Denied</div>
+      <p>This is a private bot. You do not have permission.</p>
+      <p class="user-id">Your ID is: <span id="displayUserId">Unknown</span></p>
+    </div>
+
+    <!-- Screen shown to authorized users -->
+    <div id="authorizedContent" class="authorized-card">
+      <h1>Welcome!</h1>
+      <p>You have access to this private mini app.</p>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Telegram WebApp SDK
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    // 1. Allowed Telegram IDs and Usernames
+    const ALLOWED_USER_IDS = [8261058836];
+    const ALLOWED_USERNAMES = ["casa_nova00"]; 
+
+    // 2. Fetch user information from Telegram context
+    const user = tg.initDataUnsafe?.user;
+    const currentUserId = user ? user.id : null;
+    const currentUsername = user?.username ? user.username.toLowerCase() : null;
+
+    // 3. Perform permission check
+    const accessDeniedDiv = document.getElementById("accessDenied");
+    const authorizedContentDiv = document.getElementById("authorizedContent");
+    const displayUserIdSpan = document.getElementById("displayUserId");
+
+    displayUserIdSpan.textContent = currentUserId || "Unavailable";
+
+    const isAuthorizedById = currentUserId && ALLOWED_USER_IDS.includes(currentUserId);
+    const isAuthorizedByUsername = currentUsername && ALLOWED_USERNAMES.map(u => u.toLowerCase()).includes(currentUsername);
+
+    if (isAuthorizedById || isAuthorizedByUsername) {
+      // User is allowed
+      authorizedContentDiv.style.display = "block";
+    } else {
+      // User is NOT allowed
+      accessDeniedDiv.style.display = "block";
+    }
+  </script>
+</body>
+</html>
